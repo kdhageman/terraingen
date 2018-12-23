@@ -3,6 +3,7 @@ package tree
 import (
 	"fmt"
 	"github.com/ajstarks/svgo"
+	"math"
 	"math/rand"
 	"os"
 )
@@ -48,20 +49,20 @@ func (t *tree) Draw(x, y int, filename string) error {
 	return nil
 }
 
-func New() Tree {
+func New(childCount, depth, length, angleRange int) Tree {
 	var c []tree
-	for i := 0; i < 5; i++ {
-		t := tree{
-			length:   80,
-			rotation: -60 + rand.Intn(120),
-			children: []tree{},
+	if depth > 0 {
+		childLength := int(0.8 * float64(length))
+		grandchildrenCount := int(math.Max(1, float64(childCount)-1))
+		for i := 0; i < childCount; i++ {
+			t := New(grandchildrenCount, depth-1, childLength, 60).(*tree)
+			c = append(c, *t)
 		}
-		c = append(c, t)
 	}
 
 	return &tree{
 		children: c,
-		length:   100,
-		rotation: -10 + rand.Intn(20),
+		length:   length,
+		rotation: rand.Intn(2*angleRange) - angleRange,
 	}
 }
