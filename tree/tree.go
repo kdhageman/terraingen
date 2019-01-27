@@ -8,6 +8,10 @@ import (
 	"os"
 )
 
+const (
+	leafFactor = 0.2
+)
+
 type Tree interface {
 	Draw(x, y int, filename string) error
 }
@@ -22,15 +26,25 @@ func (t *tree) draw(canvas *svg.SVG) {
 	canvas.Gtransform(fmt.Sprintf("rotate(%d)", t.rotation))
 	canvas.Line(0, 0, 0, t.length, "fill:none;stroke:black")
 
-	for i, c := range t.children {
-		rootHeight := t.length
-		if i != 0 && t.length > 10 {
-			rootHeight = rand.Intn(t.length)
-		}
+	if len(t.children) > 0 {
+		for i, c := range t.children {
+			rootHeight := t.length
+			if i != 0 && t.length > 10 {
+				rootHeight = rand.Intn(t.length)
+			}
 
-		canvas.Gtransform(fmt.Sprintf("translate(%d,%d)", 0, rootHeight))
-		c.draw(canvas)
-		canvas.Gend()
+			canvas.Gtransform(fmt.Sprintf("translate(%d,%d)", 0, rootHeight))
+			c.draw(canvas)
+			canvas.Gend()
+		}
+	} else {
+		var x,y []int
+		leafSize := int(float64(t.length) * leafFactor)
+		for i := 0; i<3; i++ {
+			x = append(x, rand.Intn(leafSize * 2) - leafSize)
+			y = append(y, rand.Intn(leafSize * 2) - leafSize)
+		}
+		canvas.Polygon(x, y, "fill:white;stroke:black")
 	}
 	canvas.Gend()
 }
